@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("1480edce-e9ae-4f56-b70b-19519c614ef1")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("QueueMate.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+24a4d0f7c3fbd1a25ed942afa15e8bac4355bbd3")]
 [assembly: System.Reflection.AssemblyProductAttribute("QueueMate.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QueueMate.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
