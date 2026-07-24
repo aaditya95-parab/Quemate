@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "vfA5yxS+Mhw9FLbrDjymXE8o/3PwwZLOCCMnWLoGyBY=",
+  "Source": "QueueMate.Api",
+  "BasePath": "_content/QueueMate.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
