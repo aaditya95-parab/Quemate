@@ -21,4 +21,6 @@ public sealed class Service : BaseEntity
     = new List<StaffService>();
     public ICollection<Appointment> Appointments { get; set; }
     = new List<Appointment>();
+    public ICollection<QueueEntry> QueueEntries { get; set; }
+    = new List<QueueEntry>();
 }

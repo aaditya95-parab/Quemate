@@ -30,4 +30,6 @@ public sealed class Business : BaseEntity
     = new List<BusinessWorkingHour>();
     public ICollection<Appointment> Appointments { get; set; }
     = new List<Appointment>();
+    public ICollection<QueueEntry> QueueEntries { get; set; }
+    = new List<QueueEntry>();
 }

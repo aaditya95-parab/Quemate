@@ -33,4 +33,5 @@ public sealed class Appointment : BaseEntity
     public Service Service { get; set; } = null!;
 
     public StaffMember StaffMember { get; set; } = null!;
+    public QueueEntry? QueueEntry { get; set; }
 }

@@ -27,6 +27,7 @@ public sealed class ApplicationDbContext(
    public DbSet<StaffTimeOff> StaffTimeOffEntries
     => Set<StaffTimeOff>();
    public DbSet<Appointment> Appointments => Set<Appointment>();
+   public DbSet<QueueEntry> QueueEntries => Set<QueueEntry>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -41,6 +42,7 @@ public sealed class ApplicationDbContext(
         ConfigureStaffWorkingHour(modelBuilder);
         ConfigureStaffTimeOff(modelBuilder);
         ConfigureAppointment(modelBuilder);
+        ConfigureQueueEntry(modelBuilder);
     }
     
     private static void ConfigureService(ModelBuilder modelBuilder)
@@ -360,6 +362,71 @@ private static void ConfigureAppointment(ModelBuilder modelBuilder)
         .WithMany(staff => staff.Appointments)
         .HasForeignKey(item => item.StaffMemberId)
         .OnDelete(DeleteBehavior.Restrict);
+}
+private static void ConfigureQueueEntry(ModelBuilder modelBuilder)
+{
+    var entity = modelBuilder.Entity<QueueEntry>();
+
+    entity.ToTable("queue_entries");
+
+    entity.HasKey(item => item.Id);
+
+    entity.Property(item => item.TokenNumber)
+        .HasMaxLength(20)
+        .IsRequired();
+
+    entity.Property(item => item.CustomerName)
+        .HasMaxLength(120)
+        .IsRequired();
+
+    entity.Property(item => item.CustomerPhone)
+        .HasMaxLength(30)
+        .IsRequired();
+
+    entity.Property(item => item.CustomerEmail)
+        .HasMaxLength(255);
+
+    entity.Property(item => item.Notes)
+        .HasMaxLength(500);
+
+    entity.Property(item => item.Status)
+        .HasConversion<string>()
+        .HasMaxLength(30)
+        .IsRequired();
+
+    entity.HasIndex(item => new
+    {
+        item.BusinessId,
+        item.QueueDate,
+        item.DailySequenceNumber
+    }).IsUnique();
+
+    entity.HasIndex(item => new
+    {
+        item.BusinessId,
+        item.QueueDate,
+        item.TokenNumber
+    }).IsUnique();
+
+    entity.HasOne(item => item.Business)
+        .WithMany(business => business.QueueEntries)
+        .HasForeignKey(item => item.BusinessId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+    entity.HasOne(item => item.Service)
+        .WithMany(service => service.QueueEntries)
+        .HasForeignKey(item => item.ServiceId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+    entity.HasOne(item => item.StaffMember)
+        .WithMany(staff => staff.QueueEntries)
+        .HasForeignKey(item => item.StaffMemberId)
+        .OnDelete(DeleteBehavior.SetNull);
+
+    entity.HasOne(item => item.Appointment)
+        .WithOne(appointment => appointment.QueueEntry)
+        .HasForeignKey<QueueEntry>(item => item.AppointmentId)
+        .OnDelete(DeleteBehavior.SetNull);
 }
     public override Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default)

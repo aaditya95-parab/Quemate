@@ -52,6 +52,7 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IAppointmentService,
     AppointmentService>();
+builder.Services.AddScoped<IQueueService, QueueService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
