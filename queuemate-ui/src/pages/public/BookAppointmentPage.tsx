@@ -25,6 +25,9 @@ import type {
 } from "../../types/appointment";
 import type { Service } from "../../types/service";
 import type { StaffMember } from "../../types/staff";
+import Alert from "../../components/ui/Alert";
+import Button from "../../components/ui/Button";
+import LoadingState from "../../components/ui/LoadingState";
 
 interface BookAppointmentPageProps {
   businessId: string;
@@ -262,8 +265,8 @@ export default function BookAppointmentPage({
 
   if (createdAppointment) {
     return (
-      <main>
-        <section>
+      <main className="booking-shell public-page">
+        <section className="panel stack">
           <CheckCircle2 size={48} />
 
           <h1>Appointment confirmed</h1>
@@ -272,7 +275,7 @@ export default function BookAppointmentPage({
             Your appointment has been booked successfully.
           </p>
 
-          <dl>
+          <dl className="panel stack">
             <div>
               <dt>Service</dt>
               <dd>{createdAppointment.serviceName}</dd>
@@ -311,8 +314,7 @@ export default function BookAppointmentPage({
             </div>
           </dl>
 
-          <button
-            type="button"
+          <Button
             onClick={() => {
               setCreatedAppointment(null);
               setSelectedSlot(null);
@@ -324,7 +326,7 @@ export default function BookAppointmentPage({
             }}
           >
             Book another appointment
-          </button>
+          </Button>
         </section>
       </main>
     );
@@ -332,34 +334,40 @@ export default function BookAppointmentPage({
 
   if (isLoadingOptions) {
     return (
-      <main>
-        <p>Loading booking options...</p>
+      <main className="booking-shell public-page">
+        <LoadingState label="Loading booking options..." />
       </main>
     );
   }
 
   return (
-    <main>
-      <header>
+    <main className="booking-shell public-page">
+      <header className="hero-panel">
+        <div className="stack">
+        <p>QueueMate booking</p>
         <h1>Book an appointment</h1>
 
         <p>
           Choose a service, staff member and available
           appointment time.
         </p>
+        </div>
       </header>
 
       {error && (
-        <p role="alert">{error}</p>
+        <Alert tone="danger" onDismiss={() => setError("")}>
+          {error}
+        </Alert>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <section>
+      <form className="content-grid" onSubmit={handleSubmit}>
+        <section className="panel stack">
           <h2>1. Select a service</h2>
 
-          <div>
+          <div className="choice-grid">
             {services.map((service) => (
               <button
+                className="choice-card"
                 key={service.id}
                 type="button"
                 aria-pressed={
@@ -386,7 +394,7 @@ export default function BookAppointmentPage({
           </div>
         </section>
 
-        <section>
+        <section className="panel stack">
           <h2>2. Select a staff member</h2>
 
           {!selectedServiceId ? (
@@ -422,7 +430,7 @@ export default function BookAppointmentPage({
           )}
         </section>
 
-        <section>
+        <section className="panel stack">
           <h2>3. Choose a date</h2>
 
           <label>
@@ -443,8 +451,7 @@ export default function BookAppointmentPage({
             />
           </label>
 
-          <button
-            type="button"
+          <Button
             onClick={() => void loadSlots()}
             disabled={
               isLoadingSlots ||
@@ -455,10 +462,10 @@ export default function BookAppointmentPage({
             {isLoadingSlots
               ? "Checking availability..."
               : "Show available slots"}
-          </button>
+          </Button>
         </section>
 
-        <section>
+        <section className="panel stack">
           <h2>4. Select a time</h2>
 
           {availableSlots.length === 0 ? (
@@ -467,9 +474,10 @@ export default function BookAppointmentPage({
               service, staff member and date.
             </p>
           ) : (
-            <div>
+            <div className="tag-list">
               {availableSlots.map((slot) => (
                 <button
+                  className="time-slot"
                   key={slot.startDateTimeUtc}
                   type="button"
                   aria-pressed={
@@ -489,7 +497,7 @@ export default function BookAppointmentPage({
           )}
         </section>
 
-        <section>
+        <section className="panel stack">
           <h2>5. Your details</h2>
 
           <label>
@@ -542,7 +550,7 @@ export default function BookAppointmentPage({
         </section>
 
         {selectedService && (
-          <section>
+          <section className="panel stack">
             <h2>Booking summary</h2>
 
             <p>{selectedService.name}</p>
@@ -566,7 +574,9 @@ export default function BookAppointmentPage({
           </section>
         )}
 
-        <button
+        <Button
+          className="full-span"
+          isLoading={isSubmitting}
           type="submit"
           disabled={
             isSubmitting ||
@@ -575,10 +585,8 @@ export default function BookAppointmentPage({
             !selectedStaffId
           }
         >
-          {isSubmitting
-            ? "Booking appointment..."
-            : "Confirm appointment"}
-        </button>
+          Confirm appointment
+        </Button>
       </form>
     </main>
   );

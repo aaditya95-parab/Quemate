@@ -8,14 +8,21 @@ import axios from "axios";
 import {
   CalendarDays,
   RefreshCw,
-  Search,
-  X,
 } from "lucide-react";
 import {
   getAppointments,
   updateAppointmentStatus,
 } from "../../api/appointmentApi";
 import AppointmentCard from "../../components/appointments/AppointmentCard";
+import Alert from "../../components/ui/Alert";
+import Button from "../../components/ui/Button";
+import EmptyState from "../../components/ui/EmptyState";
+import Input from "../../components/ui/Input";
+import LoadingState from "../../components/ui/LoadingState";
+import PageHeader from "../../components/ui/PageHeader";
+import SearchInput from "../../components/ui/SearchInput";
+import Select from "../../components/ui/Select";
+import StatCard from "../../components/ui/StatCard";
 import { useBusiness } from "../../context/BusinessContext";
 import type {
   Appointment,
@@ -24,7 +31,6 @@ import type {
 
 function getTodayDate(): string {
   const now = new Date();
-
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
@@ -196,141 +202,88 @@ export default function AppointmentsPage() {
   ).length;
 
   return (
-    <main>
-      <header>
-        <div>
-          <p>{currentBusiness?.name}</p>
-          <h1>Appointments</h1>
-          <p>
-            View bookings and manage each customer’s
-            appointment status.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => void loadAppointments()}
-          disabled={isLoading}
-        >
-          <RefreshCw size={17} />
-          Refresh
-        </button>
-      </header>
+    <main className="module-page">
+      <PageHeader
+        eyebrow={currentBusiness?.name}
+        title="Appointments"
+        description="View bookings and manage each customer's appointment status."
+        actions={
+          <Button
+            icon={<RefreshCw size={17} />}
+            isLoading={isLoading}
+            onClick={() => void loadAppointments()}
+            variant="secondary"
+          >
+            Refresh
+          </Button>
+        }
+      />
 
       {error && (
-        <div role="alert">
-          <span>{error}</span>
-
-          <button
-            type="button"
-            onClick={() => setError("")}
-          >
-            <X size={17} />
-          </button>
-        </div>
+        <Alert tone="danger" onDismiss={() => setError("")}>
+          {error}
+        </Alert>
       )}
 
       {successMessage && (
-        <div role="status">
-          <span>{successMessage}</span>
-
-          <button
-            type="button"
-            onClick={() =>
-              setSuccessMessage("")
-            }
-          >
-            <X size={17} />
-          </button>
-        </div>
+        <Alert tone="success" onDismiss={() => setSuccessMessage("")}>
+          {successMessage}
+        </Alert>
       )}
 
-      <section>
-        <label>
-          Appointment date
+      <section className="filter-bar">
+        <Input
+          label="Appointment date"
+          type="date"
+          value={selectedDate}
+          onChange={(event) =>
+            setSelectedDate(event.target.value)
+          }
+        />
 
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(event) =>
-              setSelectedDate(event.target.value)
-            }
-          />
-        </label>
+        <SearchInput
+          value={searchText}
+          onChange={(event) =>
+            setSearchText(event.target.value)
+          }
+          placeholder="Search customer, service or staff"
+        />
 
-        <label>
-          <Search size={18} />
-
-          <input
-            type="search"
-            value={searchText}
-            onChange={(event) =>
-              setSearchText(event.target.value)
-            }
-            placeholder="Search customer, service or staff"
-          />
-        </label>
-
-        <label>
-          Status
-
-          <select
-            value={statusFilter}
-            onChange={(event) =>
-              setStatusFilter(event.target.value)
-            }
-          >
-            <option value="All">All statuses</option>
-            <option value="Booked">Booked</option>
-            <option value="Confirmed">Confirmed</option>
-            <option value="CheckedIn">Checked in</option>
-            <option value="InService">In service</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-            <option value="NoShow">No show</option>
-          </select>
-        </label>
+        <Select
+          label="Status"
+          value={statusFilter}
+          onChange={(event) =>
+            setStatusFilter(event.target.value)
+          }
+        >
+          <option value="All">All statuses</option>
+          <option value="Booked">Booked</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="CheckedIn">Checked in</option>
+          <option value="InService">In service</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+          <option value="NoShow">No show</option>
+        </Select>
       </section>
 
-      <section>
-        <span>
-          Total
-          <strong>{appointments.length}</strong>
-        </span>
-
-        <span>
-          Active
-          <strong>{activeCount}</strong>
-        </span>
-
-        <span>
-          Completed
-          <strong>{completedCount}</strong>
-        </span>
-
-        <span>
-          Cancelled
-          <strong>{cancelledCount}</strong>
-        </span>
+      <section className="stat-grid">
+        <StatCard title="Total" value={appointments.length} />
+        <StatCard title="Active" value={activeCount} />
+        <StatCard title="Completed" value={completedCount} tone="success" />
+        <StatCard title="Cancelled" value={cancelledCount} tone="danger" />
       </section>
 
       {isLoading ? (
-        <section>
-          <p>Loading appointments...</p>
-        </section>
+        <LoadingState label="Loading appointments..." />
       ) : filteredAppointments.length === 0 ? (
-        <section>
-          <CalendarDays size={38} />
-
-          <h2>No appointments found</h2>
-
-          <p>
-            There are no matching appointments for the
-            selected date.
-          </p>
-        </section>
+        <EmptyState
+          icon={<CalendarDays size={30} />}
+          title="No appointments found"
+          description="There are no matching appointments for the selected date."
+        />
       ) : (
-        <section>
+        <section className="card-grid">
           {filteredAppointments.map((appointment) => (
             <AppointmentCard
               key={appointment.id}

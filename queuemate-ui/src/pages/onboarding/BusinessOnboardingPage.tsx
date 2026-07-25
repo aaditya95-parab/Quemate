@@ -3,10 +3,17 @@ import {
   type FormEvent,
 } from "react";
 import axios from "axios";
+import { Building2, CheckCircle2 } from "lucide-react";
 import {
   Navigate,
   useNavigate,
 } from "react-router-dom";
+import Alert from "../../components/ui/Alert";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import LoadingState from "../../components/ui/LoadingState";
+import Select from "../../components/ui/Select";
+import Textarea from "../../components/ui/Textarea";
 import { useBusiness } from "../../context/BusinessContext";
 
 interface FormState {
@@ -57,8 +64,8 @@ export default function BusinessOnboardingPage() {
 
   if (isLoadingBusinesses) {
     return (
-      <main>
-        <p>Loading your workspace...</p>
+      <main className="auth-card-wrap">
+        <LoadingState label="Loading your workspace..." />
       </main>
     );
   }
@@ -113,10 +120,10 @@ export default function BusinessOnboardingPage() {
   }
 
   return (
-    <main>
-      <section>
-        <header>
-          <p>QueueMate setup</p>
+    <main className="auth-card-wrap">
+      <section className="auth-card auth-card--wide">
+        <header className="stack">
+          <p className="eyebrow">Step 1 of 1 - Business setup</p>
           <h1>Create your business</h1>
           <p>
             Add your business details to start managing
@@ -125,9 +132,9 @@ export default function BusinessOnboardingPage() {
         </header>
 
         <form onSubmit={handleSubmit}>
-          <label>
-            Business name
-            <input
+          <div className="form-grid">
+            <Input
+              label="Business name"
               value={form.name}
               onChange={(event) =>
                 updateField(
@@ -139,11 +146,9 @@ export default function BusinessOnboardingPage() {
               maxLength={150}
               required
             />
-          </label>
 
-          <label>
-            Business category
-            <select
+            <Select
+              label="Business category"
               value={form.category}
               onChange={(event) =>
                 updateField(
@@ -165,12 +170,10 @@ export default function BusinessOnboardingPage() {
                   {category}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
 
-          <label>
-            Phone
-            <input
+            <Input
+              label="Phone"
               type="tel"
               value={form.phone}
               onChange={(event) =>
@@ -181,11 +184,9 @@ export default function BusinessOnboardingPage() {
               }
               placeholder="9876543210"
             />
-          </label>
 
-          <label>
-            Business email
-            <input
+            <Input
+              label="Business email"
               type="email"
               value={form.email}
               onChange={(event) =>
@@ -196,11 +197,10 @@ export default function BusinessOnboardingPage() {
               }
               placeholder="contact@business.com"
             />
-          </label>
 
-          <label>
-            Address
-            <textarea
+            <Textarea
+              className="full-span"
+              label="Address"
               value={form.address}
               onChange={(event) =>
                 updateField(
@@ -211,11 +211,10 @@ export default function BusinessOnboardingPage() {
               placeholder="Mumbai, Maharashtra"
               rows={3}
             />
-          </label>
 
-          <label>
-            Time zone
-            <select
+            <Select
+              className="full-span"
+              label="Time zone"
               value={form.timeZone}
               onChange={(event) =>
                 updateField(
@@ -231,24 +230,33 @@ export default function BusinessOnboardingPage() {
               <option value="UTC">
                 Coordinated Universal Time
               </option>
-            </select>
-          </label>
+            </Select>
+          </div>
 
           {error && (
-            <p role="alert">
+            <Alert tone="danger" onDismiss={() => setError("")}>
               {error}
-            </p>
+            </Alert>
           )}
 
-          <button
+          <div className="form-actions">
+          <Button
+            icon={isSubmitting ? undefined : <Building2 size={18} />}
+            isLoading={isSubmitting}
             type="submit"
-            disabled={isSubmitting}
           >
-            {isSubmitting
-              ? "Creating business..."
-              : "Create business"}
-          </button>
+            Create business
+          </Button>
+          </div>
         </form>
+
+        <div className="ui-alert ui-alert--success">
+          <CheckCircle2 size={18} />
+          <span>
+            You can edit services, staff, working hours, and booking
+            preferences after setup.
+          </span>
+        </div>
       </section>
     </main>
   );

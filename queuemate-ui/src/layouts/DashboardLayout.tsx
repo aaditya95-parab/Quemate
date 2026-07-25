@@ -5,16 +5,73 @@ import {
   BriefcaseBusiness,
   Users,
   LogOut,
+  Bell,
+  CalendarClock,
+  Menu,
+  X,
+  ExternalLink,
+  Clock3,
 } from "lucide-react";
+import { useState } from "react";
 import {
   NavLink,
   Outlet,
+  useLocation,
   useNavigate,
 } from "react-router-dom";
 import BusinessSelector from "../components/BusinessSelector";
+import Button from "../components/ui/Button";
+import Tooltip from "../components/ui/Tooltip";
 import { useAuth } from "../context/AuthContext";
 import { useBusiness } from "../context/BusinessContext";
-import { Clock3 } from "lucide-react";
+import { formatShortDate, getInitials } from "../utils/format";
+
+const navItems = [
+  {
+    to: "/dashboard",
+    label: "Overview",
+    icon: LayoutDashboard,
+    end: true,
+  },
+  {
+    to: "/dashboard/live-queue",
+    label: "Live Queue",
+    icon: ListOrdered,
+    end: false,
+  },
+  {
+    to: "/dashboard/appointments",
+    label: "Appointments",
+    icon: CalendarDays,
+    end: false,
+  },
+  {
+    to: "/dashboard/services",
+    label: "Services",
+    icon: BriefcaseBusiness,
+    end: false,
+  },
+  {
+    to: "/dashboard/staff",
+    label: "Staff",
+    icon: Users,
+    end: false,
+  },
+  {
+    to: "/dashboard/working-hours",
+    label: "Working Hours",
+    icon: Clock3,
+    end: false,
+  },
+] as const;
+
+function getPageTitle(pathname: string): string {
+  const match = navItems
+    .filter((item) => item.to !== "/dashboard")
+    .find((item) => pathname.startsWith(item.to));
+
+  return match?.label ?? "Overview";
+}
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
@@ -24,6 +81,9 @@ export default function DashboardLayout() {
   } = useBusiness();
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] =
+    useState(false);
 
   function handleLogout() {
     clearBusinessSelection();
@@ -35,86 +95,136 @@ export default function DashboardLayout() {
   }
 
   return (
-    <div>
-      <aside>
-        <header>
-          <h2>QueueMate</h2>
+    <div className="app-shell">
+      <aside
+        className={`sidebar ${isSidebarOpen ? "is-open" : ""}`}
+        aria-label="Dashboard navigation"
+      >
+        <header className="brand">
+          <span className="brand-mark">Q</span>
 
-          <p>
-            Smart queue management
-          </p>
+          <div>
+            <h2>QueueMate</h2>
+            <p>Smart queue OS</p>
+          </div>
+
+          <Button
+            aria-label="Close navigation"
+            className="mobile-menu-button"
+            icon={<X size={18} />}
+            onClick={() => setIsSidebarOpen(false)}
+            variant="ghost"
+          />
         </header>
 
         <BusinessSelector />
 
-        <nav>
-          <NavLink to="/dashboard" end>
-            <LayoutDashboard size={18} />
-            Overview
-          </NavLink>
+        <nav className="sidebar-nav">
+          <p className="sidebar-section-title">Workspace</p>
 
-          <NavLink to="/dashboard/live-queue">
-            <ListOrdered size={18} />
-            Live Queue
-          </NavLink>
+          {navItems.map((item) => {
+            const Icon = item.icon;
 
-          <NavLink to="/dashboard/appointments">
-            <CalendarDays size={18} />
-            Appointments
-          </NavLink>
-
-          <NavLink to="/dashboard/services">
-            <BriefcaseBusiness size={18} />
-            Services
-          </NavLink>
-
-          <NavLink to="/dashboard/staff">
-            <Users size={18} />
-            Staff
-          </NavLink>
-
-          <NavLink to="/dashboard/working-hours">
-  <Clock3 size={18} />
-  Working Hours
-</NavLink>
-
+            return (
+              <NavLink
+                end={item.end}
+                key={item.to}
+                onClick={() => setIsSidebarOpen(false)}
+                to={item.to}
+              >
+                <Icon size={18} />
+                {item.label}
+              </NavLink>
+            );
+          })}
         </nav>
 
-        <footer>
-          <p>{user?.fullName}</p>
-          <p>{currentBusiness?.currentUserRole}</p>
+        <footer className="sidebar-footer">
+          <div className="user-chip">
+            <span className="avatar">
+              {getInitials(user?.fullName)}
+            </span>
 
-          <button
-            type="button"
+            <div>
+              <strong>{user?.fullName}</strong>
+              <span>{currentBusiness?.currentUserRole}</span>
+            </div>
+          </div>
+
+          <Button
+            icon={<LogOut size={18} />}
             onClick={handleLogout}
+            variant="secondary"
           >
-            <LogOut size={18} />
             Logout
-          </button>
+          </Button>
         </footer>
       </aside>
 
-      <div>
-        <header>
+      <div className="app-main">
+        <header className="topbar">
           <div>
-            <h1>{currentBusiness?.name}</h1>
-            <p>{currentBusiness?.category}</p>
+            <Button
+              aria-label="Open navigation"
+              className="mobile-menu-button"
+              icon={<Menu size={18} />}
+              onClick={() => setIsSidebarOpen(true)}
+              variant="secondary"
+            />
+            <p className="eyebrow">
+              {formatShortDate()}
+            </p>
+            <h1>{getPageTitle(location.pathname)}</h1>
+            <p>
+              {currentBusiness?.name}
+              {currentBusiness?.category
+                ? ` · ${currentBusiness.category}`
+                : ""}
+            </p>
           </div>
 
-          <span>{user?.email}</span>
+          <div className="topbar__actions">
+            {currentBusiness && (
+              <Button
+                icon={<ExternalLink size={17} />}
+                onClick={() => {
+                  window.open(
+                    `/book/${currentBusiness.id}`,
+                    "_blank",
+                    "noreferrer",
+                  );
+                }}
+                variant="secondary"
+              >
+                Booking page
+              </Button>
+            )}
 
-          {currentBusiness && (
-            <a
-              href={`/book/${currentBusiness.id}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Open booking page
-            </a>
-          )}
+            <Tooltip label="Notifications">
+              <Button
+                aria-label="Notifications"
+                icon={<Bell size={17} />}
+                variant="ghost"
+              />
+            </Tooltip>
+
+            <div className="user-chip">
+              <span className="avatar">
+                {getInitials(user?.fullName)}
+              </span>
+              <div>
+                <strong>{user?.email}</strong>
+                <span>
+                  <CalendarClock size={13} /> Live workspace
+                </span>
+              </div>
+            </div>
+          </div>
         </header>
 
-        <Outlet />
+        <div className="content-shell">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

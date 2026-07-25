@@ -3,8 +3,12 @@ import {
   IndianRupee,
   Pencil,
   Power,
+  Sparkles,
 } from "lucide-react";
+import Button from "../ui/Button";
+import StatusBadge from "../ui/StatusBadge";
 import type { Service } from "../../types/service";
+import { formatInr } from "../../utils/format";
 
 interface ServiceCardProps {
   service: Service;
@@ -20,23 +24,26 @@ export default function ServiceCard({
   onToggleStatus,
 }: ServiceCardProps) {
   return (
-    <article>
-      <header>
+    <article className="entity-card">
+      <header className="entity-card__header">
         <div>
-          <h3>{service.name}</h3>
-
-          <span>
-            {service.isActive ? "Active" : "Inactive"}
+          <span className="stat-card__icon tone-primary">
+            <Sparkles size={18} />
           </span>
+          <h3>{service.name}</h3>
         </div>
 
-        <button
-          type="button"
+        <div className="toolbar">
+          <StatusBadge
+            status={service.isActive ? "Active" : "Inactive"}
+          />
+          <Button
+          icon={<Pencil size={17} />}
           onClick={() => onEdit(service)}
           aria-label={`Edit ${service.name}`}
-        >
-          <Pencil size={17} />
-        </button>
+          variant="ghost"
+        />
+        </div>
       </header>
 
       <p>
@@ -44,35 +51,27 @@ export default function ServiceCard({
           "No description added."}
       </p>
 
-      <div>
-        <span>
+      <div className="meta-list">
+        <p>
           <Clock3 size={17} />
           {service.durationMinutes} minutes
-        </span>
+        </p>
 
-        <span>
+        <p>
           <IndianRupee size={17} />
-          {service.price.toLocaleString("en-IN", {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2,
-          })}
-        </span>
+          {formatInr(service.price)}
+        </p>
       </div>
 
-      <footer>
-        <button
-          type="button"
+      <footer className="entity-card__footer">
+        <Button
+          icon={<Power size={17} />}
           onClick={() => onToggleStatus(service)}
-          disabled={isUpdating}
+          isLoading={isUpdating}
+          variant={service.isActive ? "secondary" : "primary"}
         >
-          <Power size={17} />
-
-          {isUpdating
-            ? "Updating..."
-            : service.isActive
-              ? "Deactivate"
-              : "Reactivate"}
-        </button>
+          {service.isActive ? "Deactivate" : "Reactivate"}
+        </Button>
       </footer>
     </article>
   );

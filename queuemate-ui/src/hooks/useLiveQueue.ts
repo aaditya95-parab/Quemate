@@ -1,5 +1,9 @@
 import { useEffect } from "react";
-import { startQueueConnection } from "../realtime/queueConnection";
+import { HubConnectionState } from "@microsoft/signalr";
+import {
+  getQueueConnection,
+  startQueueConnection,
+} from "../realtime/queueConnection";
 import type { QueueUpdatedEvent } from "../types/queue";
 
 interface UseLiveQueueOptions {
@@ -45,7 +49,7 @@ export function useLiveQueue({
       isMounted = false;
 
       const disconnect = async () => {
-        const connection = await startQueueConnection();
+        const connection = getQueueConnection();
 
         connection.off(
           "QueueUpdated",
@@ -57,6 +61,10 @@ export function useLiveQueue({
         }
 
         try {
+          if (connection.state !== HubConnectionState.Connected) {
+            return;
+          }
+
           await connection.invoke(
             "LeaveBusinessGroup",
             businessId,

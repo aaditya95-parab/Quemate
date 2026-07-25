@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using QueueMate.Api.Data;
 using QueueMate.Api.DTOs.Appointments;
 using QueueMate.Api.Enums;
+using QueueMate.Api.Helpers;
 using QueueMate.Api.Interfaces;
 using QueueMate.Api.Models;
 
@@ -86,7 +87,7 @@ public sealed class AppointmentService(
             return [];
         }
 
-        var timeZone = ResolveTimeZone(business.TimeZone);
+        var timeZone = TimeZoneResolver.Resolve(business.TimeZone);
 
         var localScheduleStart = date.ToDateTime(staffHour.StartTime.Value);
         var localScheduleEnd = date.ToDateTime(staffHour.EndTime.Value);
@@ -288,11 +289,13 @@ public sealed class AppointmentService(
         {
             var business = await dbContext.Businesses
                 .AsNoTracking()
-                .SingleAsync(
+                .SingleOrDefaultAsync(
                     item => item.Id == businessId,
-                    cancellationToken);
+                    cancellationToken)
+                ?? throw new KeyNotFoundException(
+                    "Business was not found.");
 
-            var timeZone = ResolveTimeZone(business.TimeZone);
+            var timeZone = TimeZoneResolver.Resolve(business.TimeZone);
 
             var localStart = date.Value.ToDateTime(TimeOnly.MinValue);
             var localEnd = localStart.AddDays(1);
@@ -310,10 +313,15 @@ public sealed class AppointmentService(
                 item.StartDateTimeUtc < endUtc);
         }
 
-        return await query
+        var appointments = await query
+            .Include(item => item.Service)
+            .Include(item => item.StaffMember)
             .OrderBy(item => item.StartDateTimeUtc)
-            .Select(item => MapResponse(item))
             .ToListAsync(cancellationToken);
+
+        return appointments
+            .Select(MapResponse)
+            .ToList();
     }
 
     public async Task<AppointmentResponse?> GetByIdAsync(
@@ -327,13 +335,18 @@ public sealed class AppointmentService(
             businessId,
             cancellationToken);
 
-        return await dbContext.Appointments
+        var appointment = await dbContext.Appointments
             .AsNoTracking()
+            .Include(item => item.Service)
+            .Include(item => item.StaffMember)
             .Where(item =>
                 item.Id == appointmentId &&
                 item.BusinessId == businessId)
-            .Select(item => MapResponse(item))
             .SingleOrDefaultAsync(cancellationToken);
+
+        return appointment is null
+            ? null
+            : MapResponse(appointment);
     }
 
     public async Task<AppointmentResponse?> UpdateStatusAsync(
@@ -410,11 +423,16 @@ public sealed class AppointmentService(
             Guid appointmentId,
             CancellationToken cancellationToken)
     {
-        return await dbContext.Appointments
+        var appointment = await dbContext.Appointments
             .AsNoTracking()
+            .Include(item => item.Service)
+            .Include(item => item.StaffMember)
             .Where(item => item.Id == appointmentId)
-            .Select(item => MapResponse(item))
             .SingleOrDefaultAsync(cancellationToken);
+
+        return appointment is null
+            ? null
+            : MapResponse(appointment);
     }
 
     private static AppointmentResponse MapResponse(
@@ -425,9 +443,9 @@ public sealed class AppointmentService(
             Id = item.Id,
             BusinessId = item.BusinessId,
             ServiceId = item.ServiceId,
-            ServiceName = item.Service.Name,
+            ServiceName = item.Service?.Name ?? "Service unavailable",
             StaffMemberId = item.StaffMemberId,
-            StaffName = item.StaffMember.FullName,
+            StaffName = item.StaffMember?.FullName ?? "Staff unavailable",
             CustomerName = item.CustomerName,
             CustomerPhone = item.CustomerPhone,
             CustomerEmail = item.CustomerEmail,
@@ -481,20 +499,6 @@ public sealed class AppointmentService(
         if (string.IsNullOrWhiteSpace(request.CustomerPhone))
         {
             throw new ArgumentException("Customer phone is required.");
-        }
-    }
-
-    private static TimeZoneInfo ResolveTimeZone(
-        string timeZoneId)
-    {
-        try
-        {
-            return TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-        }
-        catch (TimeZoneNotFoundException)
-        {
-            throw new InvalidOperationException(
-                $"The configured time zone '{timeZoneId}' is invalid.");
         }
     }
 

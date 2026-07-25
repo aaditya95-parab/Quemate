@@ -6,6 +6,7 @@ using QueueMate.Api.Interfaces;
 using QueueMate.Api.Models;
 using Microsoft.AspNetCore.SignalR;
 using QueueMate.Api.Hubs;
+using QueueMate.Api.Helpers;
 
 namespace QueueMate.Api.Services;
 
@@ -168,14 +169,19 @@ private async Task BroadcastQueueUpdateAsync(
             businessId,
             cancellationToken);
 
-        return await dbContext.QueueEntries
+        var entries = await dbContext.QueueEntries
             .AsNoTracking()
+            .Include(item => item.Service)
+            .Include(item => item.StaffMember)
             .Where(item =>
                 item.BusinessId == businessId &&
                 item.QueueDate == queueDate)
             .OrderBy(item => item.DailySequenceNumber)
-            .Select(item => MapResponse(item))
             .ToListAsync(cancellationToken);
+
+        return entries
+            .Select(MapResponse)
+            .ToList();
     }
 
     public async Task<QueueEntryResponse?> UpdateStatusAsync(
@@ -390,11 +396,16 @@ return true;
         Guid queueEntryId,
         CancellationToken cancellationToken)
     {
-        return await dbContext.QueueEntries
+        var entry = await dbContext.QueueEntries
             .AsNoTracking()
+            .Include(item => item.Service)
+            .Include(item => item.StaffMember)
             .Where(item => item.Id == queueEntryId)
-            .Select(item => MapResponse(item))
             .SingleOrDefaultAsync(cancellationToken);
+
+        return entry is null
+            ? null
+            : MapResponse(entry);
     }
 
     private static QueueEntryResponse MapResponse(QueueEntry item)
@@ -407,7 +418,7 @@ return true;
             DailySequenceNumber = item.DailySequenceNumber,
             QueueDate = item.QueueDate,
             ServiceId = item.ServiceId,
-            ServiceName = item.Service.Name,
+            ServiceName = item.Service?.Name ?? "Service unavailable",
             StaffMemberId = item.StaffMemberId,
             StaffName = item.StaffMember == null
                 ? null
@@ -472,7 +483,9 @@ return true;
         var timeZoneId = await dbContext.Businesses
             .Where(item => item.Id == businessId)
             .Select(item => item.TimeZone)
-            .SingleAsync(cancellationToken);
+            .SingleOrDefaultAsync(cancellationToken)
+            ?? throw new KeyNotFoundException(
+                "Business was not found.");
 
         return GetBusinessLocalDate(timeZoneId);
     }
@@ -480,8 +493,7 @@ return true;
     private static DateOnly GetBusinessLocalDate(
         string timeZoneId)
     {
-        var timeZone = TimeZoneInfo.FindSystemTimeZoneById(
-            timeZoneId);
+        var timeZone = TimeZoneResolver.Resolve(timeZoneId);
 
         var localNow = TimeZoneInfo.ConvertTimeFromUtc(
             DateTime.UtcNow,

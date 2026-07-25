@@ -8,9 +8,7 @@ import axios from "axios";
 import {
   Plus,
   RefreshCw,
-  Search,
   Users,
-  X,
 } from "lucide-react";
 import {
   assignStaffServices,
@@ -22,6 +20,14 @@ import {
 import { getServices } from "../../api/serviceApi";
 import StaffCard from "../../components/staff/StaffCard";
 import StaffForm from "../../components/staff/StaffForm";
+import Alert from "../../components/ui/Alert";
+import Button from "../../components/ui/Button";
+import EmptyState from "../../components/ui/EmptyState";
+import LoadingState from "../../components/ui/LoadingState";
+import Modal from "../../components/ui/Modal";
+import PageHeader from "../../components/ui/PageHeader";
+import SearchInput from "../../components/ui/SearchInput";
+import StatCard from "../../components/ui/StatCard";
 import { useBusiness } from "../../context/BusinessContext";
 import type { Service } from "../../types/service";
 import type {
@@ -293,71 +299,40 @@ export default function StaffPage() {
   }
 
   return (
-    <main>
-      <header>
-        <div>
-          <p>{currentBusiness?.name}</p>
-          <h1>Staff</h1>
-          <p>
-            Manage staff members and assign the services
-            they can provide.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openCreateForm}
-        >
-          <Plus size={18} />
-          Add staff
-        </button>
-      </header>
+    <main className="module-page">
+      <PageHeader
+        eyebrow={currentBusiness?.name}
+        title="Staff"
+        description="Manage staff members and assign the services they can provide."
+        actions={
+          <Button icon={<Plus size={18} />} onClick={openCreateForm}>
+            Add staff
+          </Button>
+        }
+      />
 
       {error && (
-        <div role="alert">
-          <span>{error}</span>
-
-          <button
-            type="button"
-            onClick={() => setError("")}
-            aria-label="Dismiss error"
-          >
-            <X size={17} />
-          </button>
-        </div>
+        <Alert tone="danger" onDismiss={() => setError("")}>
+          {error}
+        </Alert>
       )}
 
       {successMessage && (
-        <div role="status">
-          <span>{successMessage}</span>
-
-          <button
-            type="button"
-            onClick={() =>
-              setSuccessMessage("")
-            }
-            aria-label="Dismiss message"
-          >
-            <X size={17} />
-          </button>
-        </div>
+        <Alert tone="success" onDismiss={() => setSuccessMessage("")}>
+          {successMessage}
+        </Alert>
       )}
 
-      <section>
-        <label>
-          <Search size={18} />
+      <section className="filter-bar">
+        <SearchInput
+          value={searchText}
+          onChange={(event) =>
+            setSearchText(event.target.value)
+          }
+          placeholder="Search staff"
+        />
 
-          <input
-            type="search"
-            value={searchText}
-            onChange={(event) =>
-              setSearchText(event.target.value)
-            }
-            placeholder="Search staff"
-          />
-        </label>
-
-        <label>
+        <label className="switch-field">
           <input
             type="checkbox"
             checked={showInactive}
@@ -371,77 +346,55 @@ export default function StaffPage() {
           Show inactive staff
         </label>
 
-        <button
-          type="button"
+        <Button
+          icon={<RefreshCw size={17} />}
           onClick={() => void loadData()}
-          disabled={isLoading}
+          isLoading={isLoading}
+          variant="secondary"
         >
-          <RefreshCw size={17} />
           Refresh
-        </button>
+        </Button>
       </section>
 
-      <section>
-        <span>
-          Total staff
-          <strong>{staffMembers.length}</strong>
-        </span>
-
-        <span>
-          Active
-          <strong>
-            {
-              staffMembers.filter(
-                (staff) => staff.isActive,
-              ).length
-            }
-          </strong>
-        </span>
-
-        <span>
-          Inactive
-          <strong>
-            {
-              staffMembers.filter(
-                (staff) => !staff.isActive,
-              ).length
-            }
-          </strong>
-        </span>
+      <section className="stat-grid">
+        <StatCard title="Total staff" value={staffMembers.length} />
+        <StatCard
+          title="Active"
+          value={staffMembers.filter((staff) => staff.isActive).length}
+          tone="success"
+        />
+        <StatCard
+          title="Inactive"
+          value={staffMembers.filter((staff) => !staff.isActive).length}
+          tone="warning"
+        />
       </section>
 
       {isLoading ? (
-        <section>
-          <p>Loading staff...</p>
-        </section>
+        <LoadingState label="Loading staff..." />
       ) : filteredStaff.length === 0 ? (
-        <section>
-          <Users size={38} />
-
-          <h2>
-            {staffMembers.length === 0
+        <EmptyState
+          icon={<Users size={30} />}
+          title={
+            staffMembers.length === 0
               ? "No staff members added"
-              : "No matching staff members"}
-          </h2>
-
-          <p>
-            {staffMembers.length === 0
+              : "No matching staff members"
+          }
+          description={
+            staffMembers.length === 0
               ? "Add your first staff member and assign their services."
-              : "Try changing your search or filter."}
-          </p>
-
-          {staffMembers.length === 0 && (
-            <button
-              type="button"
-              onClick={openCreateForm}
-            >
-              <Plus size={18} />
-              Add first staff member
-            </button>
-          )}
-        </section>
+              : "Try changing your search or filter."
+          }
+          action={
+            staffMembers.length === 0 ? (
+              <Button icon={<Plus size={18} />} onClick={openCreateForm}>
+                Add first staff member
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
-        <section>
+        <section className="card-grid">
           {filteredStaff.map((staff) => (
             <StaffCard
               key={staff.id}
@@ -459,23 +412,11 @@ export default function StaffPage() {
       )}
 
       {isFormOpen && (
-        <div
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              closeForm();
-            }
-          }}
+        <Modal
+          title={selectedStaff ? "Edit staff member" : "Create staff member"}
+          description="Maintain staff details and service assignments."
+          onClose={closeForm}
         >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-label={
-              selectedStaff
-                ? "Edit staff member"
-                : "Create staff member"
-            }
-          >
             <StaffForm
               staff={selectedStaff}
               services={services}
@@ -483,8 +424,7 @@ export default function StaffPage() {
               onSubmit={handleSave}
               onCancel={closeForm}
             />
-          </section>
-        </div>
+        </Modal>
       )}
     </main>
   );

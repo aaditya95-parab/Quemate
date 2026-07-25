@@ -105,6 +105,14 @@ public sealed class AppointmentsController(
                 StatusCodes.Status403Forbidden,
                 new { message = exception.Message });
         }
+        catch (KeyNotFoundException exception)
+        {
+            return NotFound(new { message = exception.Message });
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
     }
 
     [Authorize]
@@ -136,6 +144,10 @@ public sealed class AppointmentsController(
             return StatusCode(
                 StatusCodes.Status403Forbidden,
                 new { message = exception.Message });
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new { message = exception.Message });
         }
     }
 
@@ -170,6 +182,10 @@ public sealed class AppointmentsController(
             return StatusCode(
                 StatusCodes.Status403Forbidden,
                 new { message = exception.Message });
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new { message = exception.Message });
         }
     }
 

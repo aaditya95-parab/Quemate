@@ -1,5 +1,6 @@
 import { Building2 } from "lucide-react";
 import { useBusiness } from "../context/BusinessContext";
+import Select from "./ui/Select";
 
 export default function BusinessSelector() {
   const {
@@ -10,7 +11,14 @@ export default function BusinessSelector() {
   } = useBusiness();
 
   if (isLoadingBusinesses) {
-    return <span>Loading businesses...</span>;
+    return (
+      <div className="business-selector">
+        <span>
+          <Building2 size={18} />
+          Loading businesses...
+        </span>
+      </div>
+    );
   }
 
   if (businesses.length === 0) {
@@ -18,13 +26,14 @@ export default function BusinessSelector() {
   }
 
   return (
-    <label>
+    <div className="business-selector">
       <span>
         <Building2 size={18} />
         Business
       </span>
 
-      <select
+      <Select
+        aria-label="Current business"
         value={currentBusinessId ?? ""}
         onChange={(event) =>
           selectBusiness(event.target.value)
@@ -38,7 +47,7 @@ export default function BusinessSelector() {
             {business.name}
           </option>
         ))}
-      </select>
-    </label>
+      </Select>
+    </div>
   );
 }

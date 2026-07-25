@@ -72,6 +72,14 @@ public sealed class QueueController(
                 StatusCodes.Status403Forbidden,
                 new { message = exception.Message });
         }
+        catch (KeyNotFoundException exception)
+        {
+            return NotFound(new { message = exception.Message });
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
     }
 
     [Authorize]
@@ -109,6 +117,14 @@ public sealed class QueueController(
             return StatusCode(
                 StatusCodes.Status403Forbidden,
                 new { message = exception.Message });
+        }
+        catch (KeyNotFoundException exception)
+        {
+            return NotFound(new { message = exception.Message });
+        }
+        catch (InvalidOperationException exception)
+        {
+            return BadRequest(new { message = exception.Message });
         }
     }
 

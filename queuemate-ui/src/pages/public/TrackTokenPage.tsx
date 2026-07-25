@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { startQueueConnection } from "../../realtime/queueConnection";
+import LoadingState from "../../components/ui/LoadingState";
+import StatusBadge from "../../components/ui/StatusBadge";
 import type { QueueUpdatedEvent } from "../../types/queue";
 
 interface TokenTracking {
@@ -110,28 +112,40 @@ export default function TrackTokenPage({
   }, [queueEntryId, loadTokenTracking]);
 
   if (!tracking) {
-    return <p>Loading token...</p>;
+    return (
+      <main className="booking-shell public-page">
+        <LoadingState label="Loading token..." />
+      </main>
+    );
   }
 
   return (
-    <main>
-      <h1>Track Your Token</h1>
+    <main className="booking-shell public-page">
+      <section className="hero-panel">
+        <div className="stack">
+          <p>QueueMate live tracking</p>
+          <h1>Track your token</h1>
+          <p>Live queue status for your visit.</p>
+        </div>
+      </section>
 
-      <h2>{tracking.tokenNumber}</h2>
+      <section className="panel stack">
+        <h2 className="queue-token">{tracking.tokenNumber}</h2>
 
-      <p>Status: {tracking.status}</p>
-      <p>Service: {tracking.serviceName}</p>
-      <p>People ahead: {tracking.peopleAhead}</p>
-      <p>
-        Estimated wait: {tracking.estimatedWaitMinutes} minutes
-      </p>
-
-      {tracking.currentlyServingToken && (
+        <StatusBadge status={tracking.status} />
+        <p>Service: {tracking.serviceName}</p>
+        <p>People ahead: {tracking.peopleAhead}</p>
         <p>
-          Currently serving:{" "}
-          {tracking.currentlyServingToken}
+          Estimated wait: {tracking.estimatedWaitMinutes} minutes
         </p>
-      )}
+
+        {tracking.currentlyServingToken && (
+          <p>
+            Currently serving:{" "}
+            {tracking.currentlyServingToken}
+          </p>
+        )}
+      </section>
     </main>
   );
 }

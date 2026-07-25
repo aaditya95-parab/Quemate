@@ -3,9 +3,11 @@ import {
   Pencil,
   Phone,
   Power,
-  UserRound,
 } from "lucide-react";
+import Button from "../ui/Button";
+import StatusBadge from "../ui/StatusBadge";
 import type { StaffMember } from "../../types/staff";
+import { getInitials } from "../../utils/format";
 
 interface StaffCardProps {
   staff: StaffMember;
@@ -21,33 +23,33 @@ export default function StaffCard({
   onToggleStatus,
 }: StaffCardProps) {
   return (
-    <article>
-      <header>
-        <div>
-          <UserRound size={20} />
-
+    <article className="entity-card">
+      <header className="entity-card__header">
+        <div className="user-chip">
+          <span className="avatar">
+            {getInitials(staff.fullName)}
+          </span>
           <div>
-            <h3>{staff.fullName}</h3>
-            <p>{staff.jobTitle || "Staff member"}</p>
+            <strong>{staff.fullName}</strong>
+            <span>{staff.jobTitle || "Staff member"}</span>
           </div>
         </div>
 
-        <div>
-          <span>
-            {staff.isActive ? "Active" : "Inactive"}
-          </span>
+        <div className="toolbar">
+          <StatusBadge
+            status={staff.isActive ? "Active" : "Inactive"}
+          />
 
-          <button
-            type="button"
+          <Button
+            icon={<Pencil size={17} />}
             onClick={() => onEdit(staff)}
             aria-label={`Edit ${staff.fullName}`}
-          >
-            <Pencil size={17} />
-          </button>
+            variant="ghost"
+          />
         </div>
       </header>
 
-      <section>
+      <section className="meta-list">
         {staff.email && (
           <p>
             <Mail size={16} />
@@ -63,15 +65,15 @@ export default function StaffCard({
         )}
       </section>
 
-      <section>
+      <section className="stack">
         <h4>Services</h4>
 
         {staff.services.length === 0 ? (
           <p>No services assigned.</p>
         ) : (
-          <div>
+          <div className="tag-list">
             {staff.services.map((service) => (
-              <span key={service.id}>
+              <span className="tag" key={service.id}>
                 {service.name}
               </span>
             ))}
@@ -79,20 +81,15 @@ export default function StaffCard({
         )}
       </section>
 
-      <footer>
-        <button
-          type="button"
+      <footer className="entity-card__footer">
+        <Button
+          icon={<Power size={17} />}
           onClick={() => onToggleStatus(staff)}
-          disabled={isUpdating}
+          isLoading={isUpdating}
+          variant={staff.isActive ? "secondary" : "primary"}
         >
-          <Power size={17} />
-
-          {isUpdating
-            ? "Updating..."
-            : staff.isActive
-              ? "Deactivate"
-              : "Reactivate"}
-        </button>
+          {staff.isActive ? "Deactivate" : "Reactivate"}
+        </Button>
       </footer>
     </article>
   );

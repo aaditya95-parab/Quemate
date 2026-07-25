@@ -6,11 +6,13 @@ import {
   Phone,
   UserRound,
 } from "lucide-react";
+import StatusBadge from "../ui/StatusBadge";
 import type {
   Appointment,
   AppointmentStatusValue,
 } from "../../types/appointment";
 import { appointmentStatusOptions } from "../../types/appointment";
+import { formatInr, getInitials } from "../../utils/format";
 
 interface AppointmentCardProps {
   appointment: Appointment;
@@ -42,13 +44,20 @@ export default function AppointmentCard({
   onStatusChange,
 }: AppointmentCardProps) {
   return (
-    <article>
-      <header>
-        <div>
-          <h3>{appointment.customerName}</h3>
-          <span>{appointment.status}</span>
+    <article className="entity-card">
+      <header className="entity-card__header">
+        <div className="user-chip">
+          <span className="avatar">
+            {getInitials(appointment.customerName)}
+          </span>
+          <div>
+            <strong>{appointment.customerName}</strong>
+            <span>{appointment.serviceName}</span>
+          </div>
         </div>
 
+        <div className="toolbar">
+          <StatusBadge status={appointment.status} />
         <select
           value={
             appointmentStatusOptions.find(
@@ -74,9 +83,10 @@ export default function AppointmentCard({
             </option>
           ))}
         </select>
+        </div>
       </header>
 
-      <section>
+      <section className="meta-list">
         <p>
           <CalendarDays size={16} />
           {formatDate(appointment.startDateTimeUtc)}
@@ -95,19 +105,16 @@ export default function AppointmentCard({
         </p>
       </section>
 
-      <section>
+      <section className="entity-row">
         <h4>{appointment.serviceName}</h4>
 
         <p>
           <IndianRupee size={16} />
-          {appointment.priceAtBooking.toLocaleString("en-IN", {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2,
-          })}
+          {formatInr(appointment.priceAtBooking)}
         </p>
       </section>
 
-      <section>
+      <section className="meta-list">
         <p>
           <Phone size={16} />
           {appointment.customerPhone}
@@ -122,7 +129,7 @@ export default function AppointmentCard({
       </section>
 
       {appointment.notes && (
-        <footer>
+        <footer className="panel">
           <strong>Notes</strong>
           <p>{appointment.notes}</p>
         </footer>

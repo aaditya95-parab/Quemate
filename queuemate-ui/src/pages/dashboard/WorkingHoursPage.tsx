@@ -11,7 +11,6 @@ import {
   RefreshCw,
   Trash2,
   UserRound,
-  X,
 } from "lucide-react";
 import { getStaff } from "../../api/staffApi";
 import {
@@ -25,6 +24,12 @@ import {
 } from "../../api/workingHoursApi";
 import TimeOffForm from "../../components/working-hours/TimeOffForm";
 import WeeklyHoursEditor from "../../components/working-hours/WeeklyHoursEditor";
+import Alert from "../../components/ui/Alert";
+import Button from "../../components/ui/Button";
+import LoadingState from "../../components/ui/LoadingState";
+import PageHeader from "../../components/ui/PageHeader";
+import Select from "../../components/ui/Select";
+import Tabs from "../../components/ui/Tabs";
 import { useBusiness } from "../../context/BusinessContext";
 import type { StaffMember } from "../../types/staff";
 import type {
@@ -343,93 +348,67 @@ export default function WorkingHoursPage() {
 
   if (isLoading) {
     return (
-      <main>
-        <p>Loading working hours...</p>
+      <main className="module-page">
+        <LoadingState label="Loading working hours..." />
       </main>
     );
   }
 
   return (
-    <main>
-      <header>
-        <div>
-          <p>{currentBusiness?.name}</p>
-          <h1>Working Hours</h1>
-          <p>
-            Configure business hours, staff schedules,
-            and leave periods.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => void loadInitialData()}
-        >
-          <RefreshCw size={17} />
-          Refresh
-        </button>
-      </header>
+    <main className="module-page">
+      <PageHeader
+        eyebrow={currentBusiness?.name}
+        title="Working Hours"
+        description="Configure business hours, staff schedules, and leave periods."
+        actions={
+          <Button
+            icon={<RefreshCw size={17} />}
+            onClick={() => void loadInitialData()}
+            variant="secondary"
+          >
+            Refresh
+          </Button>
+        }
+      />
 
       {error && (
-        <div role="alert">
-          <span>{error}</span>
-
-          <button
-            type="button"
-            onClick={() => setError("")}
-          >
-            <X size={17} />
-          </button>
-        </div>
+        <Alert tone="danger" onDismiss={() => setError("")}>
+          {error}
+        </Alert>
       )}
 
       {successMessage && (
-        <div role="status">
-          <span>{successMessage}</span>
-
-          <button
-            type="button"
-            onClick={() =>
-              setSuccessMessage("")
-            }
-          >
-            <X size={17} />
-          </button>
-        </div>
+        <Alert tone="success" onDismiss={() => setSuccessMessage("")}>
+          {successMessage}
+        </Alert>
       )}
 
-      <nav aria-label="Working hours sections">
-        <button
-          type="button"
-          onClick={() => setActiveTab("business")}
-          aria-pressed={activeTab === "business"}
-        >
-          <Building2 size={18} />
-          Business hours
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("staff")}
-          aria-pressed={activeTab === "staff"}
-        >
-          <UserRound size={18} />
-          Staff schedule
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab("time-off")}
-          aria-pressed={activeTab === "time-off"}
-        >
-          <CalendarOff size={18} />
-          Time off
-        </button>
-      </nav>
+      <Tabs
+        label="Working hours sections"
+        value={activeTab}
+        onChange={setActiveTab}
+        items={[
+          {
+            value: "business",
+            label: "Business hours",
+            icon: <Building2 size={18} />,
+          },
+          {
+            value: "staff",
+            label: "Staff schedule",
+            icon: <UserRound size={18} />,
+          },
+          {
+            value: "time-off",
+            label: "Time off",
+            icon: <CalendarOff size={18} />,
+          },
+        ]}
+      />
 
       {activeTab === "business" && (
-        <section>
-          <header>
+        <section className="panel">
+          <header className="panel-header">
             <Clock3 size={22} />
 
             <div>
@@ -450,11 +429,9 @@ export default function WorkingHoursPage() {
       )}
 
       {activeTab !== "business" && (
-        <section>
-          <label>
-            Select staff member
-
-            <select
+        <section className="panel">
+          <Select
+            label="Select staff member"
               value={selectedStaffId}
               onChange={(event) =>
                 setSelectedStaffId(
@@ -476,17 +453,16 @@ export default function WorkingHoursPage() {
                   {staff.fullName}
                   {staff.jobTitle
                     ? ` — ${staff.jobTitle}`
-                    : ""}
+                  : ""}
                 </option>
               ))}
-            </select>
-          </label>
+          </Select>
         </section>
       )}
 
       {activeTab === "staff" && (
-        <section>
-          <header>
+        <section className="panel">
+          <header className="panel-header">
             <UserRound size={22} />
 
             <div>
@@ -519,8 +495,8 @@ export default function WorkingHoursPage() {
       )}
 
       {activeTab === "time-off" && (
-        <section>
-          <header>
+        <section className="panel">
+          <header className="panel-header">
             <CalendarOff size={22} />
 
             <div>
@@ -540,7 +516,7 @@ export default function WorkingHoursPage() {
                 onSubmit={handleCreateTimeOff}
               />
 
-              <section>
+              <section className="stack">
                 <h3>Scheduled time off</h3>
 
                 {timeOffEntries.length === 0 ? (
@@ -548,9 +524,9 @@ export default function WorkingHoursPage() {
                     No time-off periods have been added.
                   </p>
                 ) : (
-                  <div>
+                  <div className="stack">
                     {timeOffEntries.map((entry) => (
-                      <article key={entry.id}>
+                      <article className="entity-card" key={entry.id}>
                         <div>
                           <strong>
                             {formatDateTime(
@@ -572,8 +548,8 @@ export default function WorkingHoursPage() {
                             "No reason provided"}
                         </p>
 
-                        <button
-                          type="button"
+                        <Button
+                          icon={<Trash2 size={17} />}
                           onClick={() =>
                             void handleDeleteTimeOff(
                               entry.id,
@@ -583,14 +559,14 @@ export default function WorkingHoursPage() {
                             deletingTimeOffId ===
                             entry.id
                           }
+                          isLoading={
+                            deletingTimeOffId ===
+                            entry.id
+                          }
+                          variant="danger"
                         >
-                          <Trash2 size={17} />
-
-                          {deletingTimeOffId ===
-                          entry.id
-                            ? "Removing..."
-                            : "Remove"}
-                        </button>
+                          Remove
+                        </Button>
                       </article>
                     ))}
                   </div>
