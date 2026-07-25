@@ -46,6 +46,9 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IStaffService,
     QueueMate.Api.Services.StaffService>();
+builder.Services.AddScoped<
+    IWorkingHoursService,
+    WorkingHoursService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

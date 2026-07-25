@@ -20,4 +20,9 @@ public sealed class StaffMember : BaseEntity
 
     public ICollection<StaffService> StaffServices { get; set; }
         = new List<StaffService>();
+    public ICollection<StaffWorkingHour> WorkingHours { get; set; }
+    = new List<StaffWorkingHour>();
+
+    public ICollection<StaffTimeOff> TimeOffEntries { get; set; }
+    = new List<StaffTimeOff>();
 }

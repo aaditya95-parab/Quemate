@@ -18,6 +18,14 @@ public sealed class ApplicationDbContext(
     public DbSet<StaffMember> StaffMembers => Set<StaffMember>();
 
     public DbSet<StaffService> StaffServices => Set<StaffService>();
+    public DbSet<BusinessWorkingHour> BusinessWorkingHours
+    => Set<BusinessWorkingHour>();
+
+   public DbSet<StaffWorkingHour> StaffWorkingHours
+    => Set<StaffWorkingHour>();
+
+   public DbSet<StaffTimeOff> StaffTimeOffEntries
+    => Set<StaffTimeOff>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -28,6 +36,9 @@ public sealed class ApplicationDbContext(
         ConfigureService(modelBuilder);
         ConfigureStaffMember(modelBuilder);
         ConfigureStaffService(modelBuilder);
+        ConfigureBusinessWorkingHour(modelBuilder);
+        ConfigureStaffWorkingHour(modelBuilder);
+        ConfigureStaffTimeOff(modelBuilder);
     }
     
     private static void ConfigureService(ModelBuilder modelBuilder)
@@ -209,6 +220,84 @@ private static void ConfigureStaffService(ModelBuilder modelBuilder)
     entity.HasOne(mapping => mapping.Service)
         .WithMany(service => service.StaffServices)
         .HasForeignKey(mapping => mapping.ServiceId)
+        .OnDelete(DeleteBehavior.Cascade);
+}
+private static void ConfigureBusinessWorkingHour(
+    ModelBuilder modelBuilder)
+{
+    var entity = modelBuilder.Entity<BusinessWorkingHour>();
+
+    entity.ToTable("business_working_hours");
+
+    entity.HasKey(item => item.Id);
+
+    entity.Property(item => item.OpeningTime)
+        .HasColumnType("time");
+
+    entity.Property(item => item.ClosingTime)
+        .HasColumnType("time");
+
+    entity.HasIndex(item => new
+    {
+        item.BusinessId,
+        item.DayOfWeek
+    }).IsUnique();
+
+    entity.HasOne(item => item.Business)
+        .WithMany(business => business.WorkingHours)
+        .HasForeignKey(item => item.BusinessId)
+        .OnDelete(DeleteBehavior.Cascade);
+}
+
+private static void ConfigureStaffWorkingHour(
+    ModelBuilder modelBuilder)
+{
+    var entity = modelBuilder.Entity<StaffWorkingHour>();
+
+    entity.ToTable("staff_working_hours");
+
+    entity.HasKey(item => item.Id);
+
+    entity.Property(item => item.StartTime)
+        .HasColumnType("time");
+
+    entity.Property(item => item.EndTime)
+        .HasColumnType("time");
+
+    entity.HasIndex(item => new
+    {
+        item.StaffMemberId,
+        item.DayOfWeek
+    }).IsUnique();
+
+    entity.HasOne(item => item.StaffMember)
+        .WithMany(staff => staff.WorkingHours)
+        .HasForeignKey(item => item.StaffMemberId)
+        .OnDelete(DeleteBehavior.Cascade);
+}
+
+private static void ConfigureStaffTimeOff(
+    ModelBuilder modelBuilder)
+{
+    var entity = modelBuilder.Entity<StaffTimeOff>();
+
+    entity.ToTable("staff_time_off");
+
+    entity.HasKey(item => item.Id);
+
+    entity.Property(item => item.Reason)
+        .HasMaxLength(300);
+
+    entity.HasIndex(item => new
+    {
+        item.StaffMemberId,
+        item.StartDateTimeUtc,
+        item.EndDateTimeUtc
+    });
+
+    entity.HasOne(item => item.StaffMember)
+        .WithMany(staff => staff.TimeOffEntries)
+        .HasForeignKey(item => item.StaffMemberId)
         .OnDelete(DeleteBehavior.Cascade);
 }
     public override Task<int> SaveChangesAsync(
