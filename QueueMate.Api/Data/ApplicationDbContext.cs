@@ -13,7 +13,11 @@ public sealed class ApplicationDbContext(
     public DbSet<Business> Businesses => Set<Business>();
 
     public DbSet<BusinessMember> BusinessMembers => Set<BusinessMember>();
+    
+    public DbSet<Service> Services => Set<Service>();
+    public DbSet<StaffMember> StaffMembers => Set<StaffMember>();
 
+    public DbSet<StaffService> StaffServices => Set<StaffService>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -21,7 +25,44 @@ public sealed class ApplicationDbContext(
         ConfigureUser(modelBuilder);
         ConfigureBusiness(modelBuilder);
         ConfigureBusinessMember(modelBuilder);
+        ConfigureService(modelBuilder);
+        ConfigureStaffMember(modelBuilder);
+        ConfigureStaffService(modelBuilder);
     }
+    
+    private static void ConfigureService(ModelBuilder modelBuilder)
+{
+    var entity = modelBuilder.Entity<Service>();
+
+    entity.ToTable("services");
+
+    entity.HasKey(service => service.Id);
+
+    entity.Property(service => service.Name)
+        .HasMaxLength(120)
+        .IsRequired();
+
+    entity.Property(service => service.Description)
+        .HasMaxLength(500);
+
+    entity.Property(service => service.DurationMinutes)
+        .IsRequired();
+
+    entity.Property(service => service.Price)
+        .HasPrecision(12, 2)
+        .IsRequired();
+
+    entity.HasIndex(service => new
+    {
+        service.BusinessId,
+        service.Name
+    }).IsUnique();
+
+    entity.HasOne(service => service.Business)
+        .WithMany(business => business.Services)
+        .HasForeignKey(service => service.BusinessId)
+        .OnDelete(DeleteBehavior.Cascade);
+}
 
     private static void ConfigureUser(ModelBuilder modelBuilder)
     {
@@ -113,7 +154,63 @@ public sealed class ApplicationDbContext(
             .HasForeignKey(member => member.BusinessId)
             .OnDelete(DeleteBehavior.Cascade);
     }
+    private static void ConfigureStaffMember(ModelBuilder modelBuilder)
+{
+    var entity = modelBuilder.Entity<StaffMember>();
 
+    entity.ToTable("staff_members");
+
+    entity.HasKey(staff => staff.Id);
+
+    entity.Property(staff => staff.FullName)
+        .HasMaxLength(120)
+        .IsRequired();
+
+    entity.Property(staff => staff.Email)
+        .HasMaxLength(255);
+
+    entity.Property(staff => staff.Phone)
+        .HasMaxLength(30);
+
+    entity.Property(staff => staff.JobTitle)
+        .HasMaxLength(100);
+
+    entity.HasIndex(staff => new
+    {
+        staff.BusinessId,
+        staff.Email
+    });
+
+    entity.HasOne(staff => staff.Business)
+        .WithMany(business => business.StaffMembers)
+        .HasForeignKey(staff => staff.BusinessId)
+        .OnDelete(DeleteBehavior.Cascade);
+}
+
+private static void ConfigureStaffService(ModelBuilder modelBuilder)
+{
+    var entity = modelBuilder.Entity<StaffService>();
+
+    entity.ToTable("staff_services");
+
+    entity.HasKey(mapping => mapping.Id);
+
+    entity.HasIndex(mapping => new
+    {
+        mapping.StaffMemberId,
+        mapping.ServiceId
+    }).IsUnique();
+
+    entity.HasOne(mapping => mapping.StaffMember)
+        .WithMany(staff => staff.StaffServices)
+        .HasForeignKey(mapping => mapping.StaffMemberId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+    entity.HasOne(mapping => mapping.Service)
+        .WithMany(service => service.StaffServices)
+        .HasForeignKey(mapping => mapping.ServiceId)
+        .OnDelete(DeleteBehavior.Cascade);
+}
     public override Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {

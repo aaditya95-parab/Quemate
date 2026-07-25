@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using QueueMate.Api.Data;
@@ -11,9 +12,11 @@ using QueueMate.Api.Data;
 namespace QueueMate.Api.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260725003701_AddServices")]
+    partial class AddServices
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,76 +158,6 @@ namespace QueueMate.Api.Data.Migrations
                     b.ToTable("services", (string)null);
                 });
 
-            modelBuilder.Entity("QueueMate.Api.Models.StaffMember", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("BusinessId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("JobTitle")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BusinessId", "Email");
-
-                    b.ToTable("staff_members", (string)null);
-                });
-
-            modelBuilder.Entity("QueueMate.Api.Models.StaffService", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("ServiceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("StaffMemberId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ServiceId");
-
-                    b.HasIndex("StaffMemberId", "ServiceId")
-                        .IsUnique();
-
-                    b.ToTable("staff_services", (string)null);
-                });
-
             modelBuilder.Entity("QueueMate.Api.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -293,53 +226,11 @@ namespace QueueMate.Api.Data.Migrations
                     b.Navigation("Business");
                 });
 
-            modelBuilder.Entity("QueueMate.Api.Models.StaffMember", b =>
-                {
-                    b.HasOne("QueueMate.Api.Models.Business", "Business")
-                        .WithMany("StaffMembers")
-                        .HasForeignKey("BusinessId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Business");
-                });
-
-            modelBuilder.Entity("QueueMate.Api.Models.StaffService", b =>
-                {
-                    b.HasOne("QueueMate.Api.Models.Service", "Service")
-                        .WithMany("StaffServices")
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("QueueMate.Api.Models.StaffMember", "StaffMember")
-                        .WithMany("StaffServices")
-                        .HasForeignKey("StaffMemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Service");
-
-                    b.Navigation("StaffMember");
-                });
-
             modelBuilder.Entity("QueueMate.Api.Models.Business", b =>
                 {
                     b.Navigation("Members");
 
                     b.Navigation("Services");
-
-                    b.Navigation("StaffMembers");
-                });
-
-            modelBuilder.Entity("QueueMate.Api.Models.Service", b =>
-                {
-                    b.Navigation("StaffServices");
-                });
-
-            modelBuilder.Entity("QueueMate.Api.Models.StaffMember", b =>
-                {
-                    b.Navigation("StaffServices");
                 });
 
             modelBuilder.Entity("QueueMate.Api.Models.User", b =>
