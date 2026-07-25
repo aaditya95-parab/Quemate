@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QueueMate.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8718052477ec062ce883f0db4d358d3482467c8d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e32a528cc609a6f88dd24266a8642a304825356")]
 [assembly: System.Reflection.AssemblyProductAttribute("QueueMate.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QueueMate.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

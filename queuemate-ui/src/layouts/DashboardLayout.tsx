@@ -102,6 +102,16 @@ export default function DashboardLayout() {
           </div>
 
           <span>{user?.email}</span>
+
+          {currentBusiness && (
+            <a
+              href={`/book/${currentBusiness.id}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open booking page
+            </a>
+          )}
         </header>
 
         <Outlet />

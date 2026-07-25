@@ -2,6 +2,7 @@ import {
   Navigate,
   Route,
   Routes,
+  useParams,
 } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
 import LoginPage from "./pages/auth/LoginPage";
@@ -14,20 +15,22 @@ import BusinessRequiredRoute from "./routes/BusinessRequiredRoute";
 import ServicesPage from "./pages/dashboard/ServicesPage";
 import StaffPage from "./pages/dashboard/StaffPage";
 import WorkingHoursPage from "./pages/dashboard/WorkingHoursPage";
+import AppointmentsPage from "./pages/dashboard/AppointmentsPage";
+import BookAppointmentPage from "./pages/public/BookAppointmentPage";
 
-function PlaceholderPage({
-  title,
-}: {
-  title: string;
-}) {
+function PublicBookingRoute() {
+  const { businessId } = useParams();
+
+  if (!businessId) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
-    <main>
-      <h1>{title}</h1>
-      <p>This module will be connected next.</p>
-    </main>
+    <BookAppointmentPage
+      businessId={businessId}
+    />
   );
 }
-
 export default function App() {
   return (
     <Routes>
@@ -72,14 +75,11 @@ export default function App() {
               element={<LiveQueuePage />}
             />
 
-            <Route
-              path="appointments"
-              element={
-                <PlaceholderPage
-                  title="Appointments"
-                />
-              }
-            />
+           <Route
+  path="appointments"
+  element={<AppointmentsPage />}
+/>
+            
 
             <Route
   path="services"
@@ -98,6 +98,11 @@ export default function App() {
           </Route>
         </Route>
       </Route>
+
+      <Route
+        path="/book/:businessId"
+        element={<PublicBookingRoute />}
+      />
 
       <Route
         path="*"
