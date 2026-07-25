@@ -10,6 +10,7 @@ using QueueMate.Api.Interfaces;
 using QueueMate.Api.Models;
 using QueueMate.Api.Services;
 using QueueMate.Api.Settings;
+using QueueMate.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,7 @@ builder.Services.AddScoped<
     IAppointmentService,
     AppointmentService>();
 builder.Services.AddScoped<IQueueService, QueueService>();
+builder.Services.AddSignalR();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -143,6 +145,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<QueueHub>("/hubs/queue");
 
 app.MapGet("/api/health", () => Results.Ok(new
 {

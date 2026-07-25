@@ -4,11 +4,14 @@ using QueueMate.Api.DTOs.Queue;
 using QueueMate.Api.Enums;
 using QueueMate.Api.Interfaces;
 using QueueMate.Api.Models;
+using Microsoft.AspNetCore.SignalR;
+using QueueMate.Api.Hubs;
 
 namespace QueueMate.Api.Services;
 
 public sealed class QueueService(
-    ApplicationDbContext dbContext) : IQueueService
+    ApplicationDbContext dbContext,
+    IHubContext<QueueHub> hubContext) : IQueueService
 {
     public async Task<QueueEntryResponse> JoinQueueAsync(
         Guid businessId,
@@ -111,14 +114,45 @@ public sealed class QueueService(
 
         dbContext.QueueEntries.Add(queueEntry);
         await dbContext.SaveChangesAsync(cancellationToken);
-
+        await BroadcastQueueUpdateAsync(
+          queueEntry,
+          "QueueJoined",
+        cancellationToken);
         return await GetResponseAsync(
                    queueEntry.Id,
                    cancellationToken)
                ?? throw new InvalidOperationException(
                    "Queue entry was created but could not be loaded.");
     }
+private async Task BroadcastQueueUpdateAsync(
+    QueueEntry entry,
+    string eventType,
+    CancellationToken cancellationToken)
+{
+    var queueEvent = new QueueUpdatedEvent
+    {
+        EventType = eventType,
+        BusinessId = entry.BusinessId,
+        QueueEntryId = entry.Id,
+        TokenNumber = entry.TokenNumber,
+        Status = entry.Status.ToString(),
+        OccurredAtUtc = DateTime.UtcNow
+    };
 
+    await hubContext.Clients
+        .Group(QueueHub.GetBusinessGroup(entry.BusinessId))
+        .SendAsync(
+            "QueueUpdated",
+            queueEvent,
+            cancellationToken);
+
+    await hubContext.Clients
+        .Group(QueueHub.GetTokenGroup(entry.Id))
+        .SendAsync(
+            "TokenUpdated",
+            queueEvent,
+            cancellationToken);
+}
     public async Task<IReadOnlyList<QueueEntryResponse>> GetLiveQueueAsync(
         Guid userId,
         Guid businessId,
@@ -186,13 +220,18 @@ public sealed class QueueService(
             entry.StaffMemberId = request.StaffMemberId;
         }
 
-        ApplyStatus(entry, request.Status);
+       ApplyStatus(entry, request.Status);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+await dbContext.SaveChangesAsync(cancellationToken);
 
-        return await GetResponseAsync(
-            entry.Id,
-            cancellationToken);
+await BroadcastQueueUpdateAsync(
+    entry,
+    "QueueStatusChanged",
+    cancellationToken);
+
+return await GetResponseAsync(
+    entry.Id,
+    cancellationToken);
     }
 
     public async Task<QueueEntryResponse?> CallNextAsync(
@@ -233,11 +272,16 @@ public sealed class QueueService(
 
         ApplyStatus(nextEntry, QueueStatus.Called);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+await dbContext.SaveChangesAsync(cancellationToken);
 
-        return await GetResponseAsync(
-            nextEntry.Id,
-            cancellationToken);
+await BroadcastQueueUpdateAsync(
+    nextEntry,
+    "NextCustomerCalled",
+    cancellationToken);
+
+return await GetResponseAsync(
+    nextEntry.Id,
+    cancellationToken);
     }
 
     public async Task<QueueTrackingResponse?> TrackTokenAsync(
@@ -332,9 +376,14 @@ public sealed class QueueService(
 
         ApplyStatus(entry, QueueStatus.Cancelled);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+await dbContext.SaveChangesAsync(cancellationToken);
 
-        return true;
+await BroadcastQueueUpdateAsync(
+    entry,
+    "QueueCancelled",
+    cancellationToken);
+
+return true;
     }
 
     private async Task<QueueEntryResponse?> GetResponseAsync(
