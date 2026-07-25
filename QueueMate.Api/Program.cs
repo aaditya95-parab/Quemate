@@ -49,6 +49,9 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IWorkingHoursService,
     WorkingHoursService>();
+builder.Services.AddScoped<
+    IAppointmentService,
+    AppointmentService>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

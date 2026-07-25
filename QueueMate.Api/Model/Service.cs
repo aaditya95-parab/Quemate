@@ -19,4 +19,6 @@ public sealed class Service : BaseEntity
     public Business Business { get; set; } = null!;
     public ICollection<StaffService> StaffServices { get; set; }
     = new List<StaffService>();
+    public ICollection<Appointment> Appointments { get; set; }
+    = new List<Appointment>();
 }

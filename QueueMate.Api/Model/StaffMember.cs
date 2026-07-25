@@ -25,4 +25,6 @@ public sealed class StaffMember : BaseEntity
 
     public ICollection<StaffTimeOff> TimeOffEntries { get; set; }
     = new List<StaffTimeOff>();
+    public ICollection<Appointment> Appointments { get; set; }
+    = new List<Appointment>();
 }

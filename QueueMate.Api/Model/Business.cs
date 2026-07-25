@@ -28,4 +28,6 @@ public sealed class Business : BaseEntity
     = new List<StaffMember>();
     public ICollection<BusinessWorkingHour> WorkingHours { get; set; }
     = new List<BusinessWorkingHour>();
+    public ICollection<Appointment> Appointments { get; set; }
+    = new List<Appointment>();
 }

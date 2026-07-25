@@ -26,6 +26,7 @@ public sealed class ApplicationDbContext(
 
    public DbSet<StaffTimeOff> StaffTimeOffEntries
     => Set<StaffTimeOff>();
+   public DbSet<Appointment> Appointments => Set<Appointment>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -39,6 +40,7 @@ public sealed class ApplicationDbContext(
         ConfigureBusinessWorkingHour(modelBuilder);
         ConfigureStaffWorkingHour(modelBuilder);
         ConfigureStaffTimeOff(modelBuilder);
+        ConfigureAppointment(modelBuilder);
     }
     
     private static void ConfigureService(ModelBuilder modelBuilder)
@@ -299,6 +301,65 @@ private static void ConfigureStaffTimeOff(
         .WithMany(staff => staff.TimeOffEntries)
         .HasForeignKey(item => item.StaffMemberId)
         .OnDelete(DeleteBehavior.Cascade);
+}
+private static void ConfigureAppointment(ModelBuilder modelBuilder)
+{
+    var entity = modelBuilder.Entity<Appointment>();
+
+    entity.ToTable("appointments");
+
+    entity.HasKey(item => item.Id);
+
+    entity.Property(item => item.CustomerName)
+        .HasMaxLength(120)
+        .IsRequired();
+
+    entity.Property(item => item.CustomerPhone)
+        .HasMaxLength(30)
+        .IsRequired();
+
+    entity.Property(item => item.CustomerEmail)
+        .HasMaxLength(255);
+
+    entity.Property(item => item.Notes)
+        .HasMaxLength(500);
+
+    entity.Property(item => item.PriceAtBooking)
+        .HasPrecision(12, 2)
+        .IsRequired();
+
+    entity.Property(item => item.Status)
+        .HasConversion<string>()
+        .HasMaxLength(30)
+        .IsRequired();
+
+    entity.HasIndex(item => new
+    {
+        item.StaffMemberId,
+        item.StartDateTimeUtc,
+        item.EndDateTimeUtc
+    });
+
+    entity.HasIndex(item => new
+    {
+        item.BusinessId,
+        item.StartDateTimeUtc
+    });
+
+    entity.HasOne(item => item.Business)
+        .WithMany(business => business.Appointments)
+        .HasForeignKey(item => item.BusinessId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+    entity.HasOne(item => item.Service)
+        .WithMany(service => service.Appointments)
+        .HasForeignKey(item => item.ServiceId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+    entity.HasOne(item => item.StaffMember)
+        .WithMany(staff => staff.Appointments)
+        .HasForeignKey(item => item.StaffMemberId)
+        .OnDelete(DeleteBehavior.Restrict);
 }
     public override Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default)
