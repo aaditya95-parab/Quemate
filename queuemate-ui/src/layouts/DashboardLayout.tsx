@@ -14,6 +14,7 @@ import {
 import BusinessSelector from "../components/BusinessSelector";
 import { useAuth } from "../context/AuthContext";
 import { useBusiness } from "../context/BusinessContext";
+import { Clock3 } from "lucide-react";
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
@@ -71,6 +72,12 @@ export default function DashboardLayout() {
             <Users size={18} />
             Staff
           </NavLink>
+
+          <NavLink to="/dashboard/working-hours">
+  <Clock3 size={18} />
+  Working Hours
+</NavLink>
+
         </nav>
 
         <footer>

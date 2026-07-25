@@ -11,6 +11,9 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import LiveQueuePage from "./pages/dashboard/LiveQueuePage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import BusinessRequiredRoute from "./routes/BusinessRequiredRoute";
+import ServicesPage from "./pages/dashboard/ServicesPage";
+import StaffPage from "./pages/dashboard/StaffPage";
+import WorkingHoursPage from "./pages/dashboard/WorkingHoursPage";
 
 function PlaceholderPage({
   title,
@@ -79,22 +82,19 @@ export default function App() {
             />
 
             <Route
-              path="services"
-              element={
-                <PlaceholderPage
-                  title="Services"
-                />
-              }
-            />
+  path="services"
+  element={<ServicesPage />}
+/>
 
             <Route
-              path="staff"
-              element={
-                <PlaceholderPage
-                  title="Staff"
-                />
-              }
-            />
+  path="staff"
+  element={<StaffPage />}
+/>          
+<Route
+  path="working-hours"
+  element={<WorkingHoursPage />}
+/>
+
           </Route>
         </Route>
       </Route>
