@@ -1,11 +1,3 @@
-C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.csproj.AssemblyReference.cache
-C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.AssemblyInfoInputs.cache
-C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.AssemblyInfo.cs
-C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.csproj.CoreCompileInputs.cache
-C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.sourcelink.json
 C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\bin\Debug\net8.0\appsettings.json
 C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\bin\Debug\net8.0\QueueMate.Api.exe
@@ -101,6 +93,14 @@ C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\bin\Debug\net8.0\ru\Micr
 C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.csproj.AssemblyReference.cache
+C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.AssemblyInfoInputs.cache
+C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.AssemblyInfo.cs
+C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.csproj.CoreCompileInputs.cache
+C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\QueueMate.Api.sourcelink.json
 C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\Aaditya\OneDrive\Desktop\Quemate\QueueMate.Api\obj\Debug\net8.0\staticwebassets\msbuild.QueueMate.Api.Microsoft.AspNetCore.StaticWebAssets.props
